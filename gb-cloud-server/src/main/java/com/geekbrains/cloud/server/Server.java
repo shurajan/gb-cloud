@@ -4,10 +4,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
+    private static final int port = 8189;
 
     public static void main(String[] args) throws IOException {
 
-        try (ServerSocket server = new ServerSocket(8189)) {
+        try (ServerSocket server = new ServerSocket(port)) {
             System.out.println("Server started");
             while (true) {
                 Socket socket = server.accept();

@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="gb-cloud-application" />
         <module name="gb-cloud-server" />
+        <module name="gb-cloud-storage" />
       </profile>
     </annotationProcessing>
   </component>

@@ -13,7 +13,8 @@ public class Window extends javafx.application.Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ui.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage.setTitle("Chat");
+        stage.setResizable(false);
+        stage.setTitle("Cloud storage");
         stage.setScene(scene);
         stage.show();
     }

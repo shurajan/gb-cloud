@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="410.0"
-            prefWidth="253.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.geekbrains.cloud.application.ui.WindowController">
-    <TextField onAction="#sendMessage" fx:id="textView" layoutX="14.0" layoutY="367.0" prefHeight="29.0" prefWidth="226.0"/>
-    <ListView fx:id="listView" layoutX="14.0" layoutY="14.0" prefHeight="344.0" prefWidth="226.0"/>
-</AnchorPane>
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="505.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.geekbrains.cloud.application.ui.WindowController">
+   <children>
+      <ListView fx:id="clientView" prefHeight="200.0" prefWidth="235.0" />
+      <Pane prefHeight="400.0" prefWidth="35.0">
+            <Button fx:id="buttonUpload" layoutX="2.0" layoutY="106.0" mnemonicParsing="false" onAction="#upload" text="-&gt;" />
+            <Button fx:id="buttonDownload" layoutX="2.0" layoutY="263.0" mnemonicParsing="false" onAction="#download" text="&lt;-" />
+      </Pane>
+      <ListView fx:id="serverView" prefHeight="200.0" prefWidth="235.0" />
+   </children>
+</HBox>
