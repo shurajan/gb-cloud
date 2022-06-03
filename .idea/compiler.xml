@@ -2,14 +2,19 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="gb-cloud-application" />
         <module name="gb-cloud-server" />
+        <module name="gb-cloud-model" />
         <module name="gb-cloud-storage" />
+        <module name="gb-cloud-application" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="cloud-model" target="18" />
+    </bytecodeTargetLevel>
   </component>
 </project>

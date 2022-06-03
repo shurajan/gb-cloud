@@ -1,4 +1,4 @@
-package com.geekbrains.cloud.server;
+package com.geekbrains.cloud.server.basic;
 
 import com.geekbrains.cloud.files.FileStorage;
 
