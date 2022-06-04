@@ -10,6 +10,7 @@
     <option name="ignoredFiles">
       <set>
         <option value="$PROJECT_DIR$/cloud-model/pom.xml" />
+        <option value="$PROJECT_DIR$/gb-cloud-storage/pom.xml" />
       </set>
     </option>
   </component>

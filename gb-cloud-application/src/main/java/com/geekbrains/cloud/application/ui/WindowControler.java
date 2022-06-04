@@ -1,6 +1,6 @@
 package com.geekbrains.cloud.application.ui;
 
-import com.geekbrains.cloud.application.services.NettyNetworkService;
+import com.geekbrains.cloud.application.services.NetworkService;
 import com.geekbrains.cloud.model.*;
 import javafx.fxml.Initializable;
 import javafx.application.Platform;
@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +17,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
-public class NettyWindowControler implements Initializable {
+@Slf4j
+public class WindowControler implements Initializable {
     private Path homeDir;
 
     @FXML
@@ -25,7 +27,7 @@ public class NettyWindowControler implements Initializable {
     @FXML
     public ListView<String> serverView;
 
-    private NettyNetworkService network;
+    private NetworkService network;
 
     private void readLoop() {
         try {
@@ -64,7 +66,7 @@ public class NettyWindowControler implements Initializable {
             clientView.getItems().clear();
             clientView.getItems().add("..");
             clientView.getItems().addAll((new ListFiles(homeDir).getFiles()));
-            network = new NettyNetworkService(8189);
+            network = new NetworkService(8189);
             Thread readThread = new Thread(this::readLoop);
             readThread.setDaemon(true);
             readThread.start();

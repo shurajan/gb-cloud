@@ -1,4 +1,4 @@
-package com.geekbrains.cloud.server.netty.handler;
+package com.geekbrains.cloud.server.handler;
 
 import com.geekbrains.cloud.model.*;
 import io.netty.channel.ChannelHandlerContext;

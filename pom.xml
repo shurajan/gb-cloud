@@ -23,7 +23,6 @@
     <modules>
         <module>gb-cloud-server</module>
         <module>gb-cloud-application</module>
-        <module>gb-cloud-storage</module>
         <module>gb-cloud-model</module>
     </modules>
 

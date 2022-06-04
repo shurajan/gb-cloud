@@ -1,6 +1,6 @@
-package com.geekbrains.cloud.server.netty;
+package com.geekbrains.cloud.server;
 
-import com.geekbrains.cloud.server.netty.handler.CloudFileHandler;
+import com.geekbrains.cloud.server.handler.CloudFileHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
