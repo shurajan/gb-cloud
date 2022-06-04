@@ -1,21 +1,19 @@
 package com.geekbrains.cloud.server.netty.handler;
 
-import com.geekbrains.cloud.model.CloudMessage;
-import com.geekbrains.cloud.model.FileMessage;
-import com.geekbrains.cloud.model.FileRequest;
-import com.geekbrains.cloud.model.ListFiles;
+import com.geekbrains.cloud.model.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> {
 
     private Path currentDir;
 
     public CloudFileHandler() {
-        currentDir = Path.of("server_files");
+        currentDir = Path.of("server_files").toAbsolutePath();
     }
 
     @Override
@@ -30,6 +28,21 @@ public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> 
         } else if (cloudMessage instanceof FileMessage fileMessage) {
             Files.write(currentDir.resolve(fileMessage.getName()), fileMessage.getData());
             ctx.writeAndFlush(new ListFiles(currentDir));
+        } else if (cloudMessage instanceof PathChangeRequest pathChangeRequest) {
+            boolean isRefreshRequired = false;
+            if (pathChangeRequest.getNewFolder().equals("..")) {
+                if (currentDir.getParent() != null) {
+                    currentDir = currentDir.getParent();
+                    isRefreshRequired = true;
+                }
+            } else {
+                Path newPath = Paths.get(currentDir.toString(), pathChangeRequest.getNewFolder());
+                if (Files.exists(newPath) && Files.isDirectory(newPath)) {
+                    currentDir = newPath;
+                    isRefreshRequired = true;
+                }
+            }
+            if(isRefreshRequired) ctx.writeAndFlush(new ListFiles(currentDir));
         }
     }
 }
