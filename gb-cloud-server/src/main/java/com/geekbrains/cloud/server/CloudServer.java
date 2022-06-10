@@ -22,7 +22,6 @@ public class CloudServer {
         EventLoopGroup worker = new NioEventLoopGroup();
 
         try {
-
             ServerBootstrap server = new ServerBootstrap();
             server.group(auth, worker)
                     .channel(NioServerSocketChannel.class)

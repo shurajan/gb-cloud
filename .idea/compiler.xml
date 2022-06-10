@@ -7,9 +7,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="gb-cloud-application" />
         <module name="gb-cloud-server" />
         <module name="gb-cloud-model" />
-        <module name="gb-cloud-application" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

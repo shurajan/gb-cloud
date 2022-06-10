@@ -11,18 +11,26 @@ import java.nio.file.Paths;
 public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> {
 
     private Path currentDir;
+    private boolean isAuthenticated;
 
     public CloudFileHandler() {
+        System.out.println("Клиент подключился");
         currentDir = Path.of("server_files").toAbsolutePath();
+        isAuthenticated = false;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        if (!isAuthenticated) return;
         ctx.writeAndFlush(new ListFiles(currentDir));
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, CloudMessage cloudMessage) throws Exception {
+
+        //Не обрабатываем запрсы если не авторизовались
+        if (!isAuthenticated) return;
+
         if (cloudMessage instanceof FileRequest fileRequest) {
             ctx.writeAndFlush(new FileMessage(currentDir.resolve(fileRequest.getName())));
         } else if (cloudMessage instanceof FileMessage fileMessage) {
