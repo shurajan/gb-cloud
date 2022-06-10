@@ -70,6 +70,7 @@ public class WindowControler implements Initializable {
             Thread readThread = new Thread(this::readLoop);
             readThread.setDaemon(true);
             readThread.start();
+            sendAuthRequest();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -97,12 +98,16 @@ public class WindowControler implements Initializable {
         }
     }
 
+    public void sendAuthRequest() throws IOException {
+        network.write(new AuthMessage("login1",  "password1"));
+    }
+
     public void changePath(MouseEvent mouseEvent) {
         if (!clientView.getSelectionModel().isEmpty()) {
             String folder = clientView.getSelectionModel().getSelectedItem();
 
             boolean isRefreshRequired = false;
-            if(folder.equals("..")&&(homeDir.getParent()!=null)){
+            if (folder.equals("..") && (homeDir.getParent() != null)) {
                 homeDir = homeDir.getParent();
                 isRefreshRequired = true;
             } else {
@@ -112,7 +117,7 @@ public class WindowControler implements Initializable {
                     isRefreshRequired = true;
                 }
             }
-            if(isRefreshRequired){
+            if (isRefreshRequired) {
                 clientView.getItems().clear();
                 clientView.getItems().add("..");
                 try {
