@@ -6,8 +6,12 @@ import javafx.fxml.Initializable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -27,13 +31,36 @@ public class WindowControler implements Initializable {
     @FXML
     public ListView<String> serverView;
 
+    @FXML
+    public TextField loginField;
+
+    @FXML
+    public PasswordField passwordField;
+
+    @FXML
+    private HBox authPanel;
+
+
     private NetworkService network;
 
     private void readLoop() {
         try {
             while (true) {
                 CloudMessage message = network.read();
-                if (message instanceof ListFiles listFiles) {
+                if (message instanceof AuthAcceptMessage authAcceptMessage) {
+                    authPanel.setVisible(!authAcceptMessage.isAuthenticated());
+                    authPanel.setManaged(!authAcceptMessage.isAuthenticated());
+                    if (!authAcceptMessage.isAuthenticated()) {
+                        Platform.runLater(()-> {
+                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                            alert.setTitle("Connection");
+                            alert.setHeaderText("Results:");
+                            alert.setContentText(authAcceptMessage.getServerResponse());
+                            alert.showAndWait();
+                        });
+                    }
+
+                } else if (message instanceof ListFiles listFiles) {
                     Platform.runLater(() -> {
                         serverView.getItems().clear();
                         serverView.getItems().add("..");
@@ -55,13 +82,15 @@ public class WindowControler implements Initializable {
             }
         } catch (Exception e) {
             System.err.println("Connection lost");
+        } finally {
+            network.close();
         }
     }
 
     // post init fx fields
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        try {
+        try{
             homeDir = Path.of("client_files").toAbsolutePath();
             clientView.getItems().clear();
             clientView.getItems().add("..");
@@ -70,7 +99,7 @@ public class WindowControler implements Initializable {
             Thread readThread = new Thread(this::readLoop);
             readThread.setDaemon(true);
             readThread.start();
-            sendAuthRequest();
+            //sendAuthRequest();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -99,7 +128,7 @@ public class WindowControler implements Initializable {
     }
 
     public void sendAuthRequest() throws IOException {
-        network.write(new AuthMessage("login1",  "password1"));
+        network.write(new AuthMessage(loginField.getText(), passwordField.getText()));
     }
 
     public void changePath(MouseEvent mouseEvent) {

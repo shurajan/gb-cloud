@@ -4,11 +4,12 @@ import io.netty.handler.codec.serialization.ObjectDecoderInputStream;
 import io.netty.handler.codec.serialization.ObjectEncoderOutputStream;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.Socket;
 
 @Slf4j
-public class NetworkService {
+public class NetworkService implements Closeable {
 
     private ObjectDecoderInputStream is;
     private ObjectEncoderOutputStream os;
@@ -27,5 +28,15 @@ public class NetworkService {
     public void write(CloudMessage msg) throws IOException {
         os.writeObject(msg);
         os.flush();
+    }
+
+    @Override
+    public void close() {
+        try {
+            os.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
