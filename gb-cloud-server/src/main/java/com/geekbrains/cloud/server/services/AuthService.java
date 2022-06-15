@@ -16,7 +16,7 @@ public class AuthService {
         }
     }
 
-    public synchronized String  getIdByLoginAndPassword(String login, String password) {
+    public synchronized String getIdByLoginAndPassword(String login, String password) {
         try (ResultSet rs = stmt.executeQuery(
                 "SELECT id " +
                         "FROM users " +
@@ -31,6 +31,31 @@ public class AuthService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public synchronized String getIdByLogin(String login) {
+        try (ResultSet rs = stmt.executeQuery(
+                "SELECT id " +
+                        "FROM users " +
+                        "WHERE username = '" + login + "';")
+        ) {
+            while (rs.next()) {
+                return rs.getString("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public synchronized void addNewUser(String login, String password) {
+        String sql = "INSERT INTO users (username, password) " +
+                "VALUES ('" + login + "', '" + password + "');";
+        try {
+            stmt.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void end() {

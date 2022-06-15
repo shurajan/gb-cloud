@@ -22,6 +22,9 @@ public class CloudServer {
         EventLoopGroup auth = new NioEventLoopGroup(1);
         EventLoopGroup worker = new NioEventLoopGroup();
 
+        AuthService authService = new AuthService();
+        authService.start();
+
         try {
             ServerBootstrap server = new ServerBootstrap();
             server.group(auth, worker)
@@ -32,7 +35,7 @@ public class CloudServer {
                             socketChannel.pipeline().addLast(
                                     new ObjectDecoder(ClassResolvers.cacheDisabled(null)),
                                     new ObjectEncoder(),
-                                    new CloudFileHandler()
+                                    new CloudFileHandler(authService)
                             );
                         }
                     });
