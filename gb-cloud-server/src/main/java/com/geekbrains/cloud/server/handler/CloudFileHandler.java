@@ -34,12 +34,16 @@ public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> 
     protected void channelRead0(ChannelHandlerContext ctx, CloudMessage cloudMessage) throws Exception {
 
         //Ожидаем, что первое сообщение на аутентификацию
-        if(cloudMessage instanceof AuthMessage authMessage){
-            System.out.println("!!!!!");
-            String id = authService.getIdByLoginAndPassword(authMessage.getUserName(),authMessage.getPassword());
-            System.out.println(id);
-            isAuthenticated = true;
-            ctx.writeAndFlush(new ListFiles(currentDir));
+        if (cloudMessage instanceof AuthMessage authMessage) {
+            String id = authService.getIdByLoginAndPassword(authMessage.getUserName(), authMessage.getPassword());
+            if (id != null) {
+                isAuthenticated = true;
+                ctx.writeAndFlush(new AuthAcceptMessage(true, "Success"));
+                ctx.writeAndFlush(new ListFiles(currentDir));
+            } else {
+                ctx.writeAndFlush(new AuthAcceptMessage(false, "Unknown user name or password"));
+            }
+
         }
 
         //Не обрабатываем запрсы если не авторизовались
