@@ -12,15 +12,14 @@ import java.nio.file.Paths;
 public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> {
 
     private Path currentDir;
-    AuthService authService;
+    private AuthService authService;
     private boolean isAuthenticated;
 
-    public CloudFileHandler() {
+    public CloudFileHandler(AuthService authService) {
         System.out.println("Клиент подключился");
-        currentDir = Path.of("server_files").toAbsolutePath();
-        authService = new AuthService();
-        authService.start();
-        isAuthenticated = false;
+        this.currentDir = Path.of("server_files").toAbsolutePath();
+        this.authService = authService;
+        this.isAuthenticated = false;
     }
 
 //    @Override
@@ -32,16 +31,28 @@ public class CloudFileHandler extends SimpleChannelInboundHandler<CloudMessage> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, CloudMessage cloudMessage) throws Exception {
-
         //Ожидаем, что первое сообщение на аутентификацию
         if (cloudMessage instanceof AuthMessage authMessage) {
-            String id = authService.getIdByLoginAndPassword(authMessage.getUserName(), authMessage.getPassword());
-            if (id != null) {
-                isAuthenticated = true;
-                ctx.writeAndFlush(new AuthAcceptMessage(true, "Success"));
-                ctx.writeAndFlush(new ListFiles(currentDir));
+            if (authMessage.isNewUser()) {
+                String id = authService.getIdByLogin(authMessage.getUserName());
+                if (id == null) {
+                    authService.addNewUser(authMessage.getUserName(), authMessage.getPassword());
+                    id = authService.getIdByLoginAndPassword(authMessage.getUserName(), authMessage.getPassword());
+                    System.out.println(id);
+                    ctx.writeAndFlush(new AuthAcceptMessage(true, "Success"));
+                    ctx.writeAndFlush(new ListFiles(currentDir));
+                } else {
+                    ctx.writeAndFlush(new AuthAcceptMessage(false, "Try another login"));
+                }
             } else {
-                ctx.writeAndFlush(new AuthAcceptMessage(false, "Unknown user name or password"));
+                String id = authService.getIdByLoginAndPassword(authMessage.getUserName(), authMessage.getPassword());
+                if (id != null) {
+                    isAuthenticated = true;
+                    ctx.writeAndFlush(new AuthAcceptMessage(true, "Success"));
+                    ctx.writeAndFlush(new ListFiles(currentDir));
+                } else {
+                    ctx.writeAndFlush(new AuthAcceptMessage(false, "Unknown user name or password"));
+                }
             }
 
         }

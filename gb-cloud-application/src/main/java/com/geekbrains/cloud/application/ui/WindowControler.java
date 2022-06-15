@@ -6,12 +6,10 @@ import javafx.fxml.Initializable;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ListView;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -38,7 +36,13 @@ public class WindowControler implements Initializable {
     public PasswordField passwordField;
 
     @FXML
+    public CheckBox isNewUser;
+
+    @FXML
     private HBox authPanel;
+
+    @FXML
+    private Pane newUserPanel;
 
 
     private NetworkService network;
@@ -50,6 +54,9 @@ public class WindowControler implements Initializable {
                 if (message instanceof AuthAcceptMessage authAcceptMessage) {
                     authPanel.setVisible(!authAcceptMessage.isAuthenticated());
                     authPanel.setManaged(!authAcceptMessage.isAuthenticated());
+                    newUserPanel.setVisible(!authAcceptMessage.isAuthenticated());
+                    newUserPanel.setManaged(!authAcceptMessage.isAuthenticated());
+
                     if (!authAcceptMessage.isAuthenticated()) {
                         Platform.runLater(()-> {
                             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -128,7 +135,7 @@ public class WindowControler implements Initializable {
     }
 
     public void sendAuthRequest() throws IOException {
-        network.write(new AuthMessage(loginField.getText(), passwordField.getText()));
+        network.write(new AuthMessage(loginField.getText(), passwordField.getText(), isNewUser.isSelected()));
     }
 
     public void changePath(MouseEvent mouseEvent) {
