@@ -1,3 +1,5 @@
 # Project exclude paths
 /gb-cloud-application/target/
 /gb-cloud-server/target/
+/gb-cloud-model/target
+.idea

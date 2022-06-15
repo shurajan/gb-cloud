@@ -1,6 +1,7 @@
 package com.geekbrains.cloud.server;
 
 import com.geekbrains.cloud.server.handler.CloudFileHandler;
+import com.geekbrains.cloud.server.services.AuthService;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -22,7 +23,6 @@ public class CloudServer {
         EventLoopGroup worker = new NioEventLoopGroup();
 
         try {
-
             ServerBootstrap server = new ServerBootstrap();
             server.group(auth, worker)
                     .channel(NioServerSocketChannel.class)
