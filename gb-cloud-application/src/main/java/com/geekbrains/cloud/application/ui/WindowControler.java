@@ -7,11 +7,14 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import lombok.extern.slf4j.Slf4j;
 
+import javafx.scene.image.Image;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -22,12 +25,13 @@ import java.util.ResourceBundle;
 @Slf4j
 public class WindowControler implements Initializable {
     private Path homeDir;
+    private Image folderImage;
 
     @FXML
-    public ListView<String> clientView;
+    public ListView<FileSystemObject> clientView;
 
     @FXML
-    public ListView<String> serverView;
+    public ListView<FileSystemObject> serverView;
 
     @FXML
     public TextField loginField;
@@ -70,17 +74,17 @@ public class WindowControler implements Initializable {
                 } else if (message instanceof ListFiles listFiles) {
                     Platform.runLater(() -> {
                         serverView.getItems().clear();
-                        serverView.getItems().add("..");
-                        serverView.getItems().addAll(listFiles.getFiles());
+                        serverView.getItems().add(new FileSystemObject("..",true));
+                        serverView.getItems().addAll(listFiles.getFolderContent());
                     });
                 } else if (message instanceof FileMessage fileMessage) {
                     Path current = homeDir.resolve(fileMessage.getName());
                     Files.write(current, fileMessage.getData());
                     Platform.runLater(() -> {
                         clientView.getItems().clear();
-                        clientView.getItems().add("..");
+                        clientView.getItems().add(new FileSystemObject("..",true));
                         try {
-                            clientView.getItems().addAll(new ListFiles(homeDir).getFiles());
+                            clientView.getItems().addAll(new ListFiles(homeDir).getFolderContent());
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -100,13 +104,19 @@ public class WindowControler implements Initializable {
         try{
             homeDir = Path.of("client_files").toAbsolutePath();
             clientView.getItems().clear();
-            clientView.getItems().add("..");
-            clientView.getItems().addAll((new ListFiles(homeDir).getFiles()));
+            folderImage = new Image(getClass().getResourceAsStream("folder.png"));
+            clientView.setCellFactory(p-> new FileSystemObjectCell(folderImage));
+
+            clientView.getItems().add(new FileSystemObject("..",true));
+            clientView.getItems().addAll((new ListFiles(homeDir).getFolderContent()));
+
+            serverView.setCellFactory(p-> new FileSystemObjectCell(folderImage));
+
             network = new NetworkService(8189);
             Thread readThread = new Thread(this::readLoop);
             readThread.setDaemon(true);
             readThread.start();
-            //sendAuthRequest();
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -115,22 +125,26 @@ public class WindowControler implements Initializable {
 
     public void upload(ActionEvent actionEvent) throws IOException {
         if (!clientView.getSelectionModel().isEmpty()) {
-            String file = clientView.getSelectionModel().getSelectedItem();
+            String file = clientView.getSelectionModel().getSelectedItem().getName();
             network.write(new FileMessage(homeDir.resolve(file)));
         }
     }
 
     public void download(ActionEvent actionEvent) throws IOException {
         if (!serverView.getSelectionModel().isEmpty()) {
-            String file = serverView.getSelectionModel().getSelectedItem();
-            network.write(new FileRequest(file));
+            if(!serverView.getSelectionModel().getSelectedItem().isFolder()) {
+                String file = serverView.getSelectionModel().getSelectedItem().getName();
+                network.write(new FileRequest(file));
+            }
         }
     }
 
     public void sendPathChangeRequest(MouseEvent mouseEvent) throws IOException {
         if (!serverView.getSelectionModel().isEmpty()) {
-            String folder = serverView.getSelectionModel().getSelectedItem();
-            network.write(new PathChangeRequest(folder));
+            if(serverView.getSelectionModel().getSelectedItem().isFolder()) {
+                String folder = serverView.getSelectionModel().getSelectedItem().getName();
+                network.write(new PathChangeRequest(folder));
+            }
         }
     }
 
@@ -140,7 +154,7 @@ public class WindowControler implements Initializable {
 
     public void changePath(MouseEvent mouseEvent) {
         if (!clientView.getSelectionModel().isEmpty()) {
-            String folder = clientView.getSelectionModel().getSelectedItem();
+            String folder = clientView.getSelectionModel().getSelectedItem().getName();
 
             boolean isRefreshRequired = false;
             if (folder.equals("..") && (homeDir.getParent() != null)) {
@@ -155,9 +169,9 @@ public class WindowControler implements Initializable {
             }
             if (isRefreshRequired) {
                 clientView.getItems().clear();
-                clientView.getItems().add("..");
+                clientView.getItems().add(new FileSystemObject("..",true));
                 try {
-                    clientView.getItems().addAll((new ListFiles(homeDir).getFiles()));
+                    clientView.getItems().addAll((new ListFiles(homeDir).getFolderContent()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
